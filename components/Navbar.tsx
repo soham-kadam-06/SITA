@@ -50,7 +50,7 @@ const Navbar: React.FC = () => {
               </Link>
 
               <Link
-                href="/Report"
+                href="/"
                 className="text-black border-b-2 border-transparent hover:border-black transition-all duration-200"
               >
                 Report
@@ -129,17 +129,12 @@ const Navbar: React.FC = () => {
             </Link>
 
             <Link
-              href="/Report"
+              href="/"
               className="block text-black hover:text-gray-500 transition-colors duration-200"
             >
               Report
             </Link>
-            <link
-              href="/"
-              className="block text-black hover:text-gray-500 transition-colors duration-200"
-            >
-              Contact
-            </link>
+
             <div className="pt-3">
               <Link href="/">
                 <button className="w-full px-4 py-2 text-md font-medium text-black border border-black rounded-md hover:bg-black hover:text-white transition">
