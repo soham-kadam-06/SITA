@@ -9,6 +9,7 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
   display: "swap",
 });
+
 const lato = Lato({
   subsets: ["latin"],
   weight: ["300", "400", "700", "900"],
@@ -16,138 +17,106 @@ const lato = Lato({
   display: "swap",
 });
 
-export default function ReportsPage() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("Road");
-  const [location, setLocation] = useState("");
-  const [image, setImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+const Page = () => {
+  const [form, setForm] = useState({
+    title: "",
+    category: "",
+    priority: "",
+    description: "",
+    email: "",
+  });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setImage(file);
-
-    if (file) {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
-    } else {
-      setPreview(null);
-    }
+  const handleChange = (field: string, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async () => {
-    if (!title || !description || !location) return;
-
-    setLoading(true);
-    setSuccess(false);
-
-    await fetch("http://localhost:8000/api/reports", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        title,
-        description,
-        category,
-        location,
-      }),
-    });
-
-    setLoading(false);
-    setSuccess(true);
-
-    setTitle("");
-    setDescription("");
-    setCategory("Road");
-    setLocation("");
-    setImage(null);
-    setPreview(null);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Submitted:", form);
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-6">
-      <div className="w-full max-w-2xl border rounded-xl shadow-sm p-8 space-y-6">
-        <h1 className={`text-3xl font-bold text-center ${playfair.className}`}>Report an Issue</h1>
+    <main className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
+      <div className="bg-white rounded-2xl shadow-lg w-full max-w-xl p-10">
+        <h1 className="font-playfair text-3xl font-bold text-gray-900 mb-2">
+          Submit a Report
+        </h1>
+        <p className="font-lato text-gray-500 mb-8 text-sm">
+          Help us improve by reporting issues or requesting features.
+        </p>
 
-        <div className="space-y-4">
-
-          <input
-            type="text"
-            placeholder="Issue Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full border rounded-lg p-3"
-          />
-
-          <textarea
-            placeholder="Describe the issue..."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={4}
-            className="w-full border rounded-lg p-3 resize-none"
-          />
-
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full border rounded-lg p-3"
-          >
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
-            <option value="D">D</option>
-            <option value="E">E</option>
-          </select>
-
-          <input
-            type="text"
-            placeholder="Location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className="w-full border rounded-lg p-3"
-          />
-
-          <div className="space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="font-lato text-sm font-semibold text-gray-700 block mb-1">
+              Title <span className="text-red-500">*</span>
+            </label>
             <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="w-full border rounded-lg p-2"
+              type="text"
+              value={form.title}
+              onChange={(e) => handleChange("title", e.target.value)}
+              placeholder="Brief description of the issue"
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-lato focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-
-            {preview && (
-              <div className="border rounded-lg overflow-hidden">
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="w-full max-h-64 object-contain bg-gray-50"
-                />
-              </div>
-            )}
           </div>
-        </div>
 
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="w-full bg-black text-white py-3 rounded-lg transition hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading ? "Submitting..." : "Submit Report"}
-        </button>
+          <div>
+            <label className="font-lato text-sm font-semibold text-gray-700 block mb-2">
+              Category <span className="text-red-500">*</span>
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {["Bug Report", "Feature Request", "Performance", "Security", "Other"].map((cat) => (
+                <button
+                  type="button"
+                  key={cat}
+                  onClick={() => handleChange("category", cat)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-lato border transition ${
+                    form.category === cat
+                      ? "bg-gray-900 text-white border-gray-900"
+                      : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
 
-        {success && (
-          <p className="text-center text-sm">
-            Report submitted successfully.
-          </p>
-        )}
+          <div>
+            <label className="font-lato text-sm font-semibold text-gray-700 block mb-1">
+              Description <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              rows={4}
+              value={form.description}
+              onChange={(e) => handleChange("description", e.target.value)}
+              placeholder="Describe the issue in detail..."
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-lato focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="font-lato text-sm font-semibold text-gray-700 block mb-1">
+              Email <span className="text-gray-400 font-normal">(optional)</span>
+            </label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => handleChange("email", e.target.value)}
+              placeholder="you@example.com"
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-lato focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-lato font-semibold py-3 rounded-lg transition text-sm"
+          >
+            Submit Report →
+          </button>
+        </form>
       </div>
-    </div>
+    </main>
   );
-}
+};
+
+export default Page;
